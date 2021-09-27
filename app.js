@@ -183,7 +183,7 @@ Vue.component('google-map-component', {
     },
     mounted: async function() {
         const googleMapApi = await new google.maps.plugins.loader.Loader({
-            apiKey: 'AIzaSyAgJH1zyZMTtNpabmKXAHbWCdfUoA40BK4',
+            apiKey: '',
             version: "weekly",
             libraries: ["places"]
         })
