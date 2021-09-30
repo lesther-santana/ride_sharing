@@ -1,0 +1,61 @@
+{% extends 'trips/layout.html' %}
+{% load static %}
+
+{% block title %}Publicar viaje{% endblock %}
+
+
+
+
+
+{% block body %}
+<div id="app">
+    <h3 class="display-4 fw-bold mb-3"> Publicar Ruta</h3>
+    <div class="row">
+        <div class="col-12 col-md-5 mb-4">
+            <form class="p-4 p-md-5 border rounded bg-light shadow-lg">
+              <h3 class="mb-3">Viaje</h3>
+              <google-autocomplete-component v-if="google" :google="google" :map="map" @update="updateDistance"></google-autocomplete-component>
+              <hr class="my-4">
+              <h3>Vehículo</h3>
+              <div>
+                <ano-component @update="updateYear"></ano-component>
+                <marca-component @update="updateMake" :year="year"></marca-component>
+                <modelo-component @update="updateModel" :year="year" :make="make"></modelo-component>
+                <opciones-component @update="updateOpcion" :year="year" :make="make" :model="model"></opciones-component>
+              </div>
+              <hr class="my-4">
+              <h3 class="mb-3">Costo Estimado</h3>
+              <ul class="list-group mb-3">
+                <li class="list-group-item d-flex justify-content-between lh-sm">
+                    <div>
+                        <h6 class="my-0">Distancia</h6>
+                        <small class="text-muted">Distancia estimada en kilometros</small>
+                    </div>
+                    <span class="text-muted" id="distancia">Km</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between lh-sm">
+                    <div>
+                        <h6 class="my-0">Consumo de combustible</h6>
+                        <small class="text-muted">Estimaciones de la EPA para automóviles nuevos y usados</small>
+                    </div>
+                    <span class="text-muted" id="mpg">Km/G</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Costo (DOP)</span>
+                    <strong>$</strong>
+                </li>
+              </ul>
+              <hr class="my-4">
+              <button class="w-100 btn btn-lg btn-primary mb-3" type="submit">Publicar</button>
+              <small class="text-muted">Los datos de tu vehiculo son para fines informativos y solo los puedes ver tu.</small>
+            </form>
+        </div>
+        <div class="col-12 col-md-7" id="mapa">
+          <google-map-component :google="google" @update="updateGoogle"></google-map-component>
+        </div>
+    </div>
+</div>
+<script src="{% static 'trips/js/publish.js'%}"></script>
+{% endblock%}
+
+trips\static\trips\js\publish.js

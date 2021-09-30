@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+        <title>{% block title %}{% endblock %}</title>
+    </head>
+    <body style="height: 100%;">
+        <header class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-sm-between py-3 mb-5 border-bottom">
+                <a href="{% url 'index' %}" class="d-flex me-auto text-dark text-decoration-none">Logo</a>
+                <ul class="nav justify-content-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login'%}">Iniciar Sesion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register'%}">Registrarse</a>
+                    </li>
+                </ul>
+            </div>
+        </header>
+        <main style="height: auto;">
+            <div class="container">
+                <div class="bg-light text-center p-4 rounded shadow-lg" style="max-width: 420px; margin: auto;">
+                    {% block body %}{% endblock %}
+                </div>
+            </div>
+        </main>
+        <footer></footer>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+    </body>
+</html>
