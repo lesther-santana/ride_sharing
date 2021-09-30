@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inicio</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/@googlemaps/js-api-loader@1.0.0/dist/index.min.js"></script>
+    <script src="./index.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+</head>
+<body class="container">
+    <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-between py-2 mb-3 border-bottom">
+        <a href="#" class="d-flex align-items-center col-3 mb-2 mb-md-0 text-dark text-decoration-none">
+        Logo
+        </a>
+        <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+            <li><a href="#" class="nav-link px-2 link-secondary">Buscar viajes</a></li>
+            <li><a href="#" class="nav-link px-2 link-secondary">Publicar viaje</a></li>
+        </ul>
+        <div class="col-3 text-end">
+            <button type="button" class="btn btn-outline-primary">Login</button>
+        </div>
+    </header>
+    <main id="app">
+        <div class="row align-items-start" id="app">
+            <div class="mx-auto col-5">
+                <form class="p-5 border rounded-3 bg-light">
+                    <h4 class="mb-3">Ruta</h4>
+                        <google-autocomplete-component v-if="google" :google="google" :map="map" @update="updateDistance"></google-autocomplete-component>
+                    <hr class="my-4">
+                    <h4 class="mb-3">Vehículo</h4>
+                    <div>
+                        <ano-component @update="updateYear"></ano-component>
+                        <marca-component @update="updateMake" :year="year"></marca-component>
+                        <modelo-component @update="updateModel" :year="year" :make="make"></modelo-component>
+                        <opciones-component @update="updateOpcion" :year="year" :make="make" :model="model"></opciones-component>
+                    </div>
+                    <hr class="my-4">
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item d-flex justify-content-between lh-sm">
+                            <div>
+                                <h6 class="my-0">Distancia</h6>
+                                <small class="text-muted">Distancia estimada en kilometros</small>
+                            </div>
+                            <span class="text-muted" id="distancia">{{redondear(distanceKm)}} Km</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between lh-sm">
+                            <div>
+                                <h6 class="my-0">Consumo de combustible</h6>
+                                <small class="text-muted">Estimaciones de la EPA para automóviles nuevos y usados</small>
+                            </div>
+                            <span class="text-muted" id="mpg">{{roundedKmg}} Km/G</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Costo (DOP)</span>
+                            <strong>${{redondear(costo)}}</strong>
+                        </li>
+                    </ul>
+                    <button class="w-100 btn btn-lg btn-primary" type="submit">Publicar</button>
+                </form>
+            </div>
+            <div class="col-7">
+                <google-map-component :google="google" @update="updateGoogle"></google-map-component>
+                <img src="https://maps.googleapis.com/maps/api/staticmap?style=feature:poi|visibility:off&style=feature:transit|visibility:off&style=feature:road|visibility:simplified&markers=color:green|size:tiny|label:A|18.673841,-70.1721725&path=weight:4|enc:of~pB`ohkLc@m@BKBSrD[c@cDIo@ImA@q@PeGNaFP}AZeAl@qCh@_BbDYvDM`A?fEJvDb@jNpBfHz@bDJlHKnMOlGPhCRbDTtADlESnASpCg@dAKjBEjABtCR`B^~Bp@fYhJxCx@pBVzAFdDExAArb@{BbRaA`Ki@bBQ|Di@bAU|FeBfDoA|PwG~E}BfDiB`LaGrOeIbc@eUnLiGvCeBdD}BpHkFpLuIfAgAj@m@v@mAhA_CbC_IvAsEh@iAd@y@n@s@r@m@r@_@RKhBg@jAI|A@zBTpGdAzBJ`DMzAYfAa@`B{@vAiA|@iA~@eBdBaG|@oCn@mCLsAE}BOqAm@sEO{BH{B~@wE|A{ExAaFvAoF~CaMpCiMp@_ClAeCfDkEfEoEbBmBtBmCvAcCx@kBpAuEl@gEh@uChAeDjAaCfH}J|CsEdGgJvBoEd@uAdAwDjCsK~B{Jr@gBXg@v@cAr@i@bB{@pXmK`Bq@~AeAz@}@d@s@d@_Ad@aBTwAXcD|@wJRkBZeBx@wCjIcQpFmKlDwHfAuDx@iGpAeLp@{DZ{Cd@aGl@}EfAmJj@wDfCoM~@eGbByJzDkUpGw`@hEuWf@qBj@yAb@y@v@iAdBaB|DaCtHiExYmOfBqAlAkAb@k@nAsBz@oBh@eBXkAjBeNvEa]|@mG`@}Ab@aA`BuC`BoCbD_FhEiHnEgHvB_ClEyDdFyEjAaBx@kB\gAp@_DfHm\`DiOr@aE|B}Wx@oJRyAZuAfA_DbA{BvAgDhBwDjBmC~BoBfBiA|Aq@~Cw@dBSbRqA~RwAfZuBbPgA|Ly@hDWrFe@`Dg@tCo@~Ag@~Aq@pCqA|BqA|BaBvCmC~EgGrHwKbEoG|EeHxLgQXk@`FwGfF_IrDsFpIgMfKaOxPaWrFoHnMgNjB{BlCwCfFoFfKiKzF}FxDeE`HwHv@iAj@cAn@aBf@gBTwARsBF}B?}BQyBaAuH{@aGoAcJeAsJyA{LqCkPc@cD[aFSuGo@w^OyDa@qEmAyGoBuHiCqI[qAMqA?yBl@iEtBcL`B_K^{NXaM\mOTWB{AFeDLcG^oO@m@f@i@TUpACt@KvJWvJW`BEn@AvA@bBIbAM`GeA~Bg@lBiAh@}@zA_DfA{B`BiDp@_Bx@qATMnAu@`Aa@h@StCqA~HoDpA_@j@?z@TdBjAVHVA`Cw@zGoCdBs@r@s@HItCkA}@oCmA_DnD}AdBs@&size=320x320&maptype=roadmap&key=AIzaSyDhskcdBb5bski_oNDm05P6A4eGiOcbaSQ" alt="mini-map">
+            </div>
+        </div>
+    </main>
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+        <p class="col-md-4 mb-0 text-muted">© 2021 Lesther Santana</p>
+        <p>Logo</p>
+        <ul class="nav col-md-4 justify-content-end">
+          <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">FAQs</a></li>
+          <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">About</a></li>
+        </ul>
+    </footer>
+    <script src="./app.js"></script>
+</body>
+</html>
