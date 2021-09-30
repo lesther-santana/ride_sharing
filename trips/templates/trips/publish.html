@@ -43,15 +43,29 @@
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Costo (DOP)</span>
                     <strong>$</strong>
-                </li>
+                </li> 
               </ul>
               <hr class="my-4">
-              <button class="w-100 btn btn-lg btn-primary mb-3" type="submit">Publicar</button>
+              <button type="button" class="w-100 btn btn-lg btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#confirmarModal">Publicar</button>
+              <!-- Modal -->
+              <div class="modal fade" id="confirmarModal" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-body">
+                      <modal-body-component></modal-body-component>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                      <button type="button" class="btn btn-primary">Confirmar</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <small class="text-muted">Los datos de tu vehiculo son para fines informativos y solo los puedes ver tu.</small>
             </form>
         </div>
         <div class="col-12 col-md-7" id="mapa">
-          <google-map-component :google="google" @update="updateGoogle"></google-map-component>
+          <google-map-component :google="google" @update="updateGoogle" v-on:address="updateAddress"></google-map-component>
         </div>
     </div>
 </div>

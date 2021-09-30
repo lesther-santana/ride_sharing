@@ -221,7 +221,7 @@ Vue.component('google-autocomplete-component', {
             unitSystem: this.google.maps.UnitSystem.METRIC,
             routeDistance: null,
             options: {
-                fields: ["place_id"],
+                fields: ["place_id", "formatted_address"],
                 strictBounds: true,
                 componentRestrictions: {
                     country: 'do',
@@ -233,6 +233,9 @@ Vue.component('google-autocomplete-component', {
     methods: {
         updateDistance: function() {
             this.$emit('update', this.routeDistance)
+        },
+        updateAddress: function() {
+            this.$emit('address', this.originPlace)
         },
         route: function() {
             if (!this.originPlace || !this.destPlace) {
@@ -284,6 +287,9 @@ Vue.component('google-autocomplete-component', {
     watch: {
         routeDistance: function(val) {
             this.updateDistance()
+        },
+        originPlace: function(val) {
+            this.updateAddress()
         }
     },
     template: `
@@ -301,6 +307,43 @@ Vue.component('google-autocomplete-component', {
 
 })
 
+
+Vue.component('modal-body-component', {
+    props: ['startAddress', 'map'],
+    template: `
+    <div class="d-flex flex-column align-items-center my-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-info-circle mb-3" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+        </svg>
+        <h4 class="display-6 fw-normal mb-5">Confirmar Viaje</h4>
+        <div class="row">
+            <div class="col-5 d-flex align-items-baseline">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pin-map" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M3.1 11.2a.5.5 0 0 1 .4-.2H6a.5.5 0 0 1 0 1H3.75L1.5 15h13l-2.25-3H10a.5.5 0 0 1 0-1h2.5a.5.5 0 0 1 .4.2l3 4a.5.5 0 0 1-.4.8H.5a.5.5 0 0 1-.4-.8l3-4z"/>
+                <path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999z"/>
+                </svg>
+                <h4 class="ms-2">{{startAddress}}</h4>
+            </div>
+            <div class="col-2 d-flex justify-content-center align-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                </svg>
+            </div>
+            <div class="col-5 d-flex align-items-baseline justify-content-end">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pin-map" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M3.1 11.2a.5.5 0 0 1 .4-.2H6a.5.5 0 0 1 0 1H3.75L1.5 15h13l-2.25-3H10a.5.5 0 0 1 0-1h2.5a.5.5 0 0 1 .4.2l3 4a.5.5 0 0 1-.4.8H.5a.5.5 0 0 1-.4-.8l3-4z"/>
+                    <path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999z"/>
+                </svg>
+                <h4 class="ms-2">End location</h4>
+            </div>
+        </div>
+    </div>
+    `
+
+})
+
+
 var app = new Vue({
     el: '#app',
     data: {
@@ -313,7 +356,9 @@ var app = new Vue({
         distance: 0,
         google: null,
         map: null,
-        precioGasolina: 261.80
+        precioGasolina: 261.80,
+        disabled: true,
+        startAddress: null
     },
     computed: {
         distanceKm: function() {
@@ -358,6 +403,10 @@ var app = new Vue({
         },
         updateDistance: function(distance){
             this.distance = distance
+        },
+        updateAddress: function(address) {
+            console.log('receiving')
+            
         }
     },
     watch: {
