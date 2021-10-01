@@ -14,7 +14,7 @@
         <div class="col-12 col-md-5 mb-4">
             <form class="p-4 p-md-5 border rounded bg-light shadow-lg">
               <h3 class="mb-3">Viaje</h3>
-              <google-autocomplete-component v-if="google" :google="google" :map="map" @update="updateDistance" @newplace="updatePlace"></google-autocomplete-component>
+              <google-autocomplete-component v-if="google" :google="google" :map="map" @update="updateRuta" @newplace="updatePlace"></google-autocomplete-component>
               <hr class="my-4">
               <h3>Vehículo</h3>
               <div>
@@ -24,27 +24,7 @@
                 <opciones-component @update="updateOpcion" :year="year" :make="make" :model="model"></opciones-component>
               </div>
               <hr class="my-4">
-              <h3 class="mb-3">Costo Estimado</h3>
-              <ul class="list-group mb-3">
-                <li class="list-group-item d-flex justify-content-between lh-sm">
-                    <div>
-                        <h6 class="my-0">Distancia</h6>
-                        <small class="text-muted">Distancia estimada en kilometros</small>
-                    </div>
-                    <span class="text-muted" id="distancia">Km</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between lh-sm">
-                    <div>
-                        <h6 class="my-0">Consumo de combustible</h6>
-                        <small class="text-muted">Estimaciones de la EPA para automóviles nuevos y usados</small>
-                    </div>
-                    <span class="text-muted" id="mpg">Km/G</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between">
-                    <span>Costo (DOP)</span>
-                    <strong>$</strong>
-                </li> 
-              </ul>
+              <costo-component :ruta="ruta" :vehicle-id="opcion"></costo-component>
               <hr class="my-4">
               <button type="button" class="w-100 btn btn-lg btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#confirmarModal">Publicar</button>
               <!-- Modal -->
@@ -52,11 +32,11 @@
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-body">
-                      <modal-body-component :start="start" :end="end"></modal-body-component>
+                      <modal-body-component v-if="origin && dest":origin="origin" :dest="dest"></modal-body-component>
                     </div>
                     <div class="modal-footer justify-content-center">
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                      <button-component></button-component>
+                      <button-component :origin="origin" :dest="dest" :vehiculo="opcion"></button-component>
                     </div>
                   </div>
                 </div>

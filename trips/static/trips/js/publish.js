@@ -185,7 +185,8 @@ Vue.component('google-map-component', {
         const googleMapApi = await new google.maps.plugins.loader.Loader({
             apiKey: 'AIzaSyAgJH1zyZMTtNpabmKXAHbWCdfUoA40BK4',
             version: "weekly",
-            libraries: ["places"]
+            libraries: ["places"],
+            language: 'es'
         })
         this.google = await googleMapApi.load()
         this.google = window.google
@@ -215,13 +216,11 @@ Vue.component('google-autocomplete-component', {
             originPlace: null,
             destAutocomplete: null,
             destPlace: null,
-            travelMode: this.google.maps.TravelMode.DRIVING,
             directionsService: new this.google.maps.DirectionsService(),
             directionsRenderer:new this.google.maps.DirectionsRenderer(),
-            unitSystem: this.google.maps.UnitSystem.METRIC,
-            routeDistance: null,
+            ruta: null,
             options: {
-                fields: ["place_id", "formatted_address"],
+                fields: ["place_id","name", "formatted_address", "address_components"],
                 strictBounds: true,
                 componentRestrictions: {
                     country: 'do',
@@ -231,8 +230,8 @@ Vue.component('google-autocomplete-component', {
         }
     },
     methods: {
-        updateDistance: function() {
-            this.$emit('update', this.routeDistance)
+        updateRuta: function() {
+            this.$emit('update', this.ruta)
         },
         route: function() {
             if (!this.originPlace || !this.destPlace) {
@@ -242,13 +241,13 @@ Vue.component('google-autocomplete-component', {
             this.directionsService.route({
                 origin: { placeId: this.originPlace.place_id},
                 destination: { placeId: this.destPlace.place_id },
-                travelMode: this.travelMode
+                travelMode: this.google.maps.TravelMode.DRIVING,
+                unitSystem: this.google.maps.UnitSystem.METRIC
             }, 
             function(response, status) {
                 if (status === "OK") {
-                    const distance = response.routes[0].legs[0].distance.value
-                    distance ? me.routeDistance = distance : null
                     me.directionsRenderer.setDirections(response);
+                    me.ruta = response.routes[0]
                 } else {
                     window.alert("Directions request failed due to " + status);
                 }
@@ -266,8 +265,8 @@ Vue.component('google-autocomplete-component', {
                 } else {
                     this.destPlace = place;
                 }
-                this.$emit('newplace', [mode, place])
                 this.route()
+                this.$emit('newplace', [mode, place])
             })
         }
     },
@@ -283,8 +282,8 @@ Vue.component('google-autocomplete-component', {
         this.setupPlaceChangedListener(this.destAutocomplete, "DEST")
     },
     watch: {
-        routeDistance: function(val) {
-            this.updateDistance()
+        ruta: function(val) {
+            this.updateRuta()
         }
     },
     template: `
@@ -302,9 +301,103 @@ Vue.component('google-autocomplete-component', {
 
 })
 
+/*
+city08 - city MPG for fuelType1 (2), (11)
+city08U - unrounded city MPG for fuelType1 (2), (3)
+
+(2) The MPG estimates for all 1985-2007 model year vehicles and some 2011-2016 model year vehicles have been updated.
+(3) Unrounded MPG values are not available for some vehicles.
+(11) For electric and CNG vehicles this number is MPGe (gasoline equivalent miles per gallon).
+fuelType1 - fuel type 1. For single fuel vehicles, this will be the only fuel. For dual fuel vehicles, this will be the conventional fuel.
+*/
+Vue.component('costo-component', {
+    props: ['ruta', 'vehicle-id'],
+    data : function() {
+        return {
+            precioGasolina: 261.80,
+            mile2km: 1.609,
+            mpg: {
+                city08U: null,
+                city08: null
+            }
+        }
+    },
+    computed: {
+        kmG: function() {
+            if (this.mpg.city08U ) {
+                return this.mpg.city08U  * this.mile2km
+            } else if (this.mpg.city08) {
+                return this.mpg.city08  * this.mile2km
+            }
+            return 0
+        },
+        distancia: function() {
+            if(this.ruta.distance) {
+                return this.ruta.distance / 1000
+            }
+            return 0
+        },
+        costo: function() {
+            let consumo = 0
+            if (this.distancia > 0 && this.kmG > 0) {
+                consumo = this.distancia / this.kmG
+                console.log(consumo)
+            }
+            return consumo * this.precioGasolina
+        }
+    },
+    methods: {
+        getVehicle: function(id) {
+            const url = `https://www.fueleconomy.gov/ws/rest/vehicle/${id}`
+                axios.get(url)
+                .then((response) => {
+                    this.mpg.city08 = parseFloat(response.data['city08'])
+                    this.mpg.city08U = parseFloat(response.data['city08U '])
+                })
+        },
+        redondear: function(number) {
+            var m = Number((Math.abs(number) * 100).toPrecision(15));
+            return Math.round(m) / 100 * Math.sign(number);
+        }
+    },
+    watch: {
+        vehicleId: function(val, oldVal) {
+            if (val) {
+               this.getVehicle(val);
+            } 
+        }
+    },
+    template: `
+<div>
+    <h3 class="mb-3">Costo Estimado</h3>
+    <ul class="list-group mb-3">
+    <li class="list-group-item d-flex justify-content-between lh-sm">
+        <div>
+            <h6 class="my-0">Distancia</h6>
+            <small class="text-muted">Estimada en kilometros</small>
+        </div>
+        <span class="text-muted" id="distancia">{{ruta.formattedDist}}</span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between lh-sm">
+        <div>
+            <h6 class="my-0">Consumo de combustible</h6>
+            <small class="text-muted">Estimaciones de la EPA para automóviles nuevos y usados</small>
+        </div>
+        <span class="text-muted" id="mpg">{{redondear(kmG)}} Km/G</span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between">
+        <span>Costo (DOP)</span>
+        <strong>\${{redondear(costo)}}</strong>
+    </li> 
+    </ul>
+</div>
+`
+
+})
+
 
 Vue.component('modal-body-component', {
-    props: ['start', 'end', 'map'],
+    props: ['origin', 'dest', 'map'],
     template: `
     <div class="m-3">
         <div class="d-flex flex-column align-items-center mb-5">
@@ -319,7 +412,8 @@ Vue.component('modal-body-component', {
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="green" class="bi bi-geo-alt-fill mb-2" viewBox="0 0 16 16">
                     <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
                 </svg>
-                <h4 class="lead text-center mb-0">{{start}}</h4>
+                <h4 class="fw-bold text-center">{{origin.name}}</h4>
+                <p class="lead text-center mb-0">{{origin.formatted_address}}</p>
             </div>
             <div class="col-12 d-flex my-4 align-items-center justify-content-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16">
@@ -330,17 +424,17 @@ Vue.component('modal-body-component', {
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="red" class="bi bi-geo-alt-fill mb-2" viewBox="0 0 16 16">
                     <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
                 </svg>
-                <h4 class="lead text-center">{{end}}</h4>
+                <h4 class="fw-bold text-center">{{dest.name}}</h4>
+                <p class="lead text-center">{{dest.formatted_address}}</p>
             </div>
         </div>
     </div>
     `
-
 })
 
 
 Vue.component('button-component', {
-    props: ['origin', 'dest'],
+    props: ['origin', 'dest', 'vehiculo'],
     methods: {
         publish: function() {
             const csrftoken = Cookies.get('csrftoken');
@@ -348,8 +442,13 @@ Vue.component('button-component', {
                 method: 'POST',
                 mode: 'same-origin',
                 headers: {'X-CSRFToken': csrftoken},
-                body: JSON.stringify({text: 'limonada coco!'})
+                body: JSON.stringify({
+                    origin: this.origin,
+                    dest: this.dest,
+                    vehiculo: this.vehiculo
+                })
             })
+            .then(response => {console.log(response)})
         }
     },
     template: `
@@ -366,48 +465,25 @@ var app = new Vue({
         make: '',
         model: '',
         opcion: '',
-        roundedMpg: null,
-        unroundedMpg: null,
-        distance: 0,
         google: null,
         map: null,
-        precioGasolina: 261.80,
-        disabled: true,
-        start: null,
-        end: null
-    },
-    computed: {
-        distanceKm: function() {
-            return this.distance / 1000
-        },
-        Kmg: function() {
-            if (this.unroundedMpg) {
-                return this.unroundedMpg * 1.609
-            }
-            return this.roundedMpg * 1.609
-        },
-        roundedKmg: function() {
-            return this.redondear(this.Kmg)
-        },
-        consumo: function() {
-            return this.distanceKm / this.Kmg
-        },
-        costo: function() {
-            return this.consumo * this.precioGasolina
+        origin: null,
+        dest: null,
+        ruta: {
+            distance: null,
+            formattedDist: null,
+            start: {lat: null, lng: null},
+            end: {lat: null, lng: null},
+            polyline: null
         }
     },
     methods: {
         updatePlace: function(data){
             if (data[0] == "ORIG") {
-                this.start = data[1].formatted_address
+                this.origin = data[1]
             } else {
-                this.end = data[1].formatted_address
+                this.dest = data[1]
             }
-
-        },
-        redondear: function(number) {
-            var m = Number((Math.abs(number) * 100).toPrecision(15));
-            return Math.round(m) / 100 * Math.sign(number);
         },
         updateYear: function(year) {
             this.year = year
@@ -425,19 +501,19 @@ var app = new Vue({
             this.google = googleObj.google
             this.map = googleObj.map
         },
-        updateDistance: function(distance){
-            this.distance = distance
-        }
-    },
-    watch: {
-        opcion: function(val, oldVal) {
-            if (val) {
-                const url = `https://www.fueleconomy.gov/ws/rest/vehicle/${val}`
-                axios.get(url)
-                .then((response) => {
-                    this.roundedMpg = parseFloat(response.data['comb08'])
-                    this.unroundedMpg = parseFloat(response.data['comb08U'])
-                })
+        updateRuta: function(ruta) {
+            this.ruta = {
+                distance: ruta.legs[0].distance.value,
+                formattedDist: ruta.legs[0].distance.text,
+                start: {
+                    lat: ruta.legs[0].start_location.lat(),
+                    lng: ruta.legs[0].start_location.lng()
+                },
+                end: {
+                    lat: ruta.legs[0].start_location.lat(),
+                    lng: ruta.legs[0].start_location.lng()
+                }, 
+                polyline: ruta.overview_polyline
             }
         }
     }
