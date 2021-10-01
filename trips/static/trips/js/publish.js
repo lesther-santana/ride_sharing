@@ -234,9 +234,6 @@ Vue.component('google-autocomplete-component', {
         updateDistance: function() {
             this.$emit('update', this.routeDistance)
         },
-        updateAddress: function() {
-            this.$emit('address', this.originPlace)
-        },
         route: function() {
             if (!this.originPlace || !this.destPlace) {
                 return
@@ -269,6 +266,7 @@ Vue.component('google-autocomplete-component', {
                 } else {
                     this.destPlace = place;
                 }
+                this.$emit('newplace', [mode, place])
                 this.route()
             })
         }
@@ -287,9 +285,6 @@ Vue.component('google-autocomplete-component', {
     watch: {
         routeDistance: function(val) {
             this.updateDistance()
-        },
-        originPlace: function(val) {
-            this.updateAddress()
         }
     },
     template: `
@@ -309,36 +304,56 @@ Vue.component('google-autocomplete-component', {
 
 
 Vue.component('modal-body-component', {
-    props: ['startAddress', 'map'],
+    props: ['start', 'end', 'map'],
     template: `
-    <div class="d-flex flex-column align-items-center my-3">
-        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-info-circle mb-3" viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-        </svg>
-        <h4 class="display-6 fw-normal mb-5">Confirmar Viaje</h4>
+    <div class="m-3">
+        <div class="d-flex flex-column align-items-center mb-5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-info-circle mb-3" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+            </svg>
+            <h4 class="display-6 fw-normal">Confirmar Viaje</h4>         
+        </div>
         <div class="row">
-            <div class="col-5 d-flex align-items-baseline">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pin-map" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M3.1 11.2a.5.5 0 0 1 .4-.2H6a.5.5 0 0 1 0 1H3.75L1.5 15h13l-2.25-3H10a.5.5 0 0 1 0-1h2.5a.5.5 0 0 1 .4.2l3 4a.5.5 0 0 1-.4.8H.5a.5.5 0 0 1-.4-.8l3-4z"/>
-                <path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999z"/>
+            <div class="col-12 d-flex flex-column align-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="green" class="bi bi-geo-alt-fill mb-2" viewBox="0 0 16 16">
+                    <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
                 </svg>
-                <h4 class="ms-2">{{startAddress}}</h4>
+                <h4 class="lead text-center mb-0">{{start}}</h4>
             </div>
-            <div class="col-2 d-flex justify-content-center align-items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
-                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+            <div class="col-12 d-flex my-4 align-items-center justify-content-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/>
                 </svg>
             </div>
-            <div class="col-5 d-flex align-items-baseline justify-content-end">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pin-map" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M3.1 11.2a.5.5 0 0 1 .4-.2H6a.5.5 0 0 1 0 1H3.75L1.5 15h13l-2.25-3H10a.5.5 0 0 1 0-1h2.5a.5.5 0 0 1 .4.2l3 4a.5.5 0 0 1-.4.8H.5a.5.5 0 0 1-.4-.8l3-4z"/>
-                    <path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999z"/>
+            <div class="col-12 d-flex flex-column align-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="red" class="bi bi-geo-alt-fill mb-2" viewBox="0 0 16 16">
+                    <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
                 </svg>
-                <h4 class="ms-2">End location</h4>
+                <h4 class="lead text-center">{{end}}</h4>
             </div>
         </div>
     </div>
+    `
+
+})
+
+
+Vue.component('button-component', {
+    props: ['origin', 'dest'],
+    methods: {
+        publish: function() {
+            const csrftoken = Cookies.get('csrftoken');
+            fetch('/publish', {
+                method: 'POST',
+                mode: 'same-origin',
+                headers: {'X-CSRFToken': csrftoken},
+                body: JSON.stringify({text: 'limonada coco!'})
+            })
+        }
+    },
+    template: `
+    <button type="button" class="btn btn-primary" @click="publish">Confirmar</button>
     `
 
 })
@@ -358,7 +373,8 @@ var app = new Vue({
         map: null,
         precioGasolina: 261.80,
         disabled: true,
-        startAddress: null
+        start: null,
+        end: null
     },
     computed: {
         distanceKm: function() {
@@ -381,6 +397,14 @@ var app = new Vue({
         }
     },
     methods: {
+        updatePlace: function(data){
+            if (data[0] == "ORIG") {
+                this.start = data[1].formatted_address
+            } else {
+                this.end = data[1].formatted_address
+            }
+
+        },
         redondear: function(number) {
             var m = Number((Math.abs(number) * 100).toPrecision(15));
             return Math.round(m) / 100 * Math.sign(number);
@@ -403,10 +427,6 @@ var app = new Vue({
         },
         updateDistance: function(distance){
             this.distance = distance
-        },
-        updateAddress: function(address) {
-            console.log('receiving')
-            
         }
     },
     watch: {

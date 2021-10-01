@@ -14,7 +14,7 @@
         <div class="col-12 col-md-5 mb-4">
             <form class="p-4 p-md-5 border rounded bg-light shadow-lg">
               <h3 class="mb-3">Viaje</h3>
-              <google-autocomplete-component v-if="google" :google="google" :map="map" @update="updateDistance"></google-autocomplete-component>
+              <google-autocomplete-component v-if="google" :google="google" :map="map" @update="updateDistance" @newplace="updatePlace"></google-autocomplete-component>
               <hr class="my-4">
               <h3>Vehículo</h3>
               <div>
@@ -52,11 +52,11 @@
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-body">
-                      <modal-body-component></modal-body-component>
+                      <modal-body-component :start="start" :end="end"></modal-body-component>
                     </div>
                     <div class="modal-footer justify-content-center">
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                      <button type="button" class="btn btn-primary">Confirmar</button>
+                      <button-component></button-component>
                     </div>
                   </div>
                 </div>
@@ -65,7 +65,7 @@
             </form>
         </div>
         <div class="col-12 col-md-7" id="mapa">
-          <google-map-component :google="google" @update="updateGoogle" v-on:address="updateAddress"></google-map-component>
+          <google-map-component :google="google" @update="updateGoogle"></google-map-component>
         </div>
     </div>
 </div>

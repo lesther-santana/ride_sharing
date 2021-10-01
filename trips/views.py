@@ -6,6 +6,7 @@ from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse
 
 from .models import User
+import json
 
 # Create your views here.
 # Create your views here.
@@ -26,6 +27,8 @@ def profie(request):
 
 @login_required
 def publish_trip(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
     return render(request, 'trips/publish.html')
 
 @login_required
