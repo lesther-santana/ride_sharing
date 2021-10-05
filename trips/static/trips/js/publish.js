@@ -341,7 +341,6 @@ Vue.component('costo-component', {
             let consumo = 0
             if (this.distancia > 0 && this.kmG > 0) {
                 consumo = this.distancia / this.kmG
-                console.log(consumo)
             }
             return consumo * this.precioGasolina
         }
@@ -442,29 +441,34 @@ Vue.component('button-component', {
                 method: 'POST',
                 mode: 'same-origin',
                 headers: {'X-CSRFToken': csrftoken},
+                redirect: 'follow',
                 body: JSON.stringify({
                     origin: this.origin,
                     dest: this.dest,
                     vehiculo: this.vehiculo
                 })
             })
-            .then(response => {console.log(response)})
+            .then(response => {
+                console.log(response)
+                if (response.redirected) {
+                    window = response
+                }
+            })
         }
     },
     template: `
     <button type="button" class="btn btn-primary" @click="publish">Confirmar</button>
     `
-
 })
 
 
 var app = new Vue({
     el: '#app',
     data: {
-        year: '',
-        make: '',
-        model: '',
-        opcion: '',
+        year: null,
+        make: null,
+        model: null,
+        opcion: null,
         google: null,
         map: null,
         origin: null,

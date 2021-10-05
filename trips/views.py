@@ -2,10 +2,11 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.http.response import HttpResponse
 from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse
 
-from .models import User
+from .models import User, Trip, Ubicacion
 from . import utils
 import json
 
@@ -30,11 +31,40 @@ def profie(request):
 def publish_trip(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        origen = data.get('origin')
-        destino = data.get('dest')
-        utils.parse_address(origen["address_components"])
-        utils.parse_address(destino["address_components"])
-            
+        origen_addr_component = utils.parse_address(data['origin']["address_components"])
+        dest_addr_component = utils.parse_address(data['dest']["address_components"])
+        try:
+            origen = Ubicacion.objects.create(
+            place_id=data['origin']['place_id'],
+            name=data['origin']['name'],
+            formatted_address=data['origin']['formatted_address'],
+            locality=origen_addr_component.get('locality', None),
+            adm_area_lv2 =origen_addr_component.get('administrative_area_level_2', None),
+            adm_area_lv1 =origen_addr_component.get('administrative_area_level_1', None)
+            )
+            origen.save()
+        except IntegrityError:
+            origen = Ubicacion.objects.get(pk=data['origin']['place_id'])
+        try:
+            destino = Ubicacion.objects.create(
+            place_id=data['dest']['place_id'],
+            name=data['dest']['name'],
+            formatted_address=data['dest']['formatted_address'],
+            locality=dest_addr_component.get('locality', None),
+            adm_area_lv2 =dest_addr_component.get('administrative_area_level_2', None),
+            adm_area_lv1 =dest_addr_component.get('administrative_area_level_1', None)
+            )
+            destino.save()
+        except IntegrityError:
+            destino = Ubicacion.objects.get(pk=data['dest']['place_id'])
+        trip = Trip.objects.create(
+            origen = origen,
+            destino = destino,
+            user = request.user,
+            vehicle = data.get('vehiculo', None)
+            )
+        trip.save()
+        return HttpResponse(status=201)
     return render(request, 'trips/publish.html')
 
 @login_required
@@ -52,7 +82,6 @@ def log_in(request):
             return HttpResponseRedirect(reverse("index"))
         else:
             messages.error(request, 'Incorrect username or password!')
-        return HttpResponseRedirect(reverse("login"))
     return render(request, 'trips/login.html')
 
 def register(request):
@@ -62,10 +91,8 @@ def register(request):
         confirm = request.POST.get("confirm")
         if not username or not password:
             messages.error(request, 'Usuario incorrecto!')
-            return HttpResponseRedirect(reverse("register"))
         elif password != confirm:
             messages.error(request, 'Contrasenas deben coincidir!')
-            return HttpResponseRedirect(reverse("register"))
         try:
             user = User.objects.create_user(username, password=password)
             user.save()
@@ -73,5 +100,4 @@ def register(request):
             return HttpResponseRedirect(reverse("login"))
         except IntegrityError as e:
             messages.error(request, 'Usuario ya existe!')
-            return HttpResponseRedirect(reverse("register"))
     return render(request, 'trips/register.html')
