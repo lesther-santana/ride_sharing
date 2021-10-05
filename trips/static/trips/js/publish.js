@@ -433,7 +433,7 @@ Vue.component('modal-body-component', {
 
 
 Vue.component('button-component', {
-    props: ['origin', 'dest', 'vehiculo'],
+    props: ['origin', 'dest', 'vehiculo', 'ruta'],
     methods: {
         publish: function() {
             const csrftoken = Cookies.get('csrftoken');
@@ -445,7 +445,8 @@ Vue.component('button-component', {
                 body: JSON.stringify({
                     origin: this.origin,
                     dest: this.dest,
-                    vehiculo: this.vehiculo
+                    vehiculo: this.vehiculo,
+                    polyline: this.ruta.polyline
                 })
             })
             .then(response => {
@@ -460,7 +461,6 @@ Vue.component('button-component', {
     <button type="button" class="btn btn-primary" @click="publish">Confirmar</button>
     `
 })
-
 
 var app = new Vue({
     el: '#app',

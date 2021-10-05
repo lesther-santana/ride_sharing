@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import HttpResponse
 from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse
@@ -14,7 +15,8 @@ import json
 # Create your views here.
 
 def index(request):
-    return render(request, 'trips/index.html')
+    trips = Trip.objects.all()[:4]
+    return render(request, 'trips/index.html', {'trips': trips})
 
 
 @login_required
@@ -61,7 +63,8 @@ def publish_trip(request):
             origen = origen,
             destino = destino,
             user = request.user,
-            vehicle = data.get('vehiculo', None)
+            vehicle = data.get('vehiculo', None),
+            polyline=data.get('polyline', None)
             )
         trip.save()
         return HttpResponse(status=201)

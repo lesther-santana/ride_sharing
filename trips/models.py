@@ -14,16 +14,25 @@ class Trip(models.Model):
     mapa = models.ImageField(upload_to='trips', null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    polyline = models.TextField(null=True)
+
+    def __str__(self) -> str:
+        return f'viaje: {self.origen} - {self.destino}'
 
     class Meta:
         ordering =['-date_created']
+
 
 class Ubicacion(models.Model):
     place_id = models.TextField(primary_key=True)
     name = models.TextField()
     formatted_address = models.TextField()
-    locality = models.CharField(max_length=80)
+    locality = models.CharField(max_length=80, null=True)
     adm_area_lv2 = models.CharField(max_length=80)
     adm_area_lv1 = models.CharField(max_length=80)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    
+
+    def __str__(self) -> str:
+        return self.name
