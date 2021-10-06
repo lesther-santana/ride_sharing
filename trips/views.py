@@ -67,7 +67,9 @@ def publish_trip(request):
             polyline=data.get('polyline', None)
             )
         trip.save()
+        messages.success(request, 'Viaje creado con exito!')
         return HttpResponse(status=201)
+        #return HttpResponseRedirect(reverse('index'))
     return render(request, 'trips/publish.html')
 
 @login_required

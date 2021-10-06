@@ -450,9 +450,9 @@ Vue.component('button-component', {
                 })
             })
             .then(response => {
-                console.log(response)
-                if (response.redirected) {
-                    window = response
+                
+                if (response.status == 201) {
+                    window.location.replace("/")
                 }
             })
         }
