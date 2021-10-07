@@ -3,6 +3,10 @@
 
 {% block title %}Inicio{% endblock %}
 
+{% block script%}
+<link rel="stylesheet" href="{% static 'trips/css/trips.css'%}">
+{% endblock %}
+
 {% block body %}
 <div id="app">
     {% if messages %}
@@ -29,22 +33,24 @@
         <div class="row row-cols-1 row-cols-md-4 g-2">
             {% for trip in trips%}
             <div class="col">
-              <div class="card shadow-sm h-100">
-                <div class="row g-0 h-100">
-                    <div class="col-md-7">
-                        <div class="card-body">
-                            <p class="fw-bold card-title">{{trip.origen.name}}</h5>
-                            <div class="vr" style="height: 10px;"></div>
-                            <p class="card-text text-muted">{{trip.destino.name}}</p>
+                <div class="card shadow-sm h-100">
+                    <a href="{% url 'trip' trip.id %}" class="plain-link">
+                        <div class="row g-0 h-100">
+                            <div class="col-md-7">
+                                <div class="card-body">
+                                    <p class="fw-bold card-title">{{trip.origen.name}}</h5>
+                                    <div class="vr" style="height: 10px;"></div>
+                                    <p class="card-text text-muted">{{trip.destino.name}}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                {% if trip.polyline%}
+                                <img style="max-width: 100%; height: auto;" src="https://maps.googleapis.com/maps/api/staticmap?style=feature:poi|visibility:off&style=feature:transit|visibility:off&path=weight:4|enc:{{trip.polyline}}&size=120x160&scale=2&maptype=roadmap&key=AIzaSyDhskcdBb5bski_oNDm05P6A4eGiOcbaSQ" alt="mini-map">
+                                {% endif %}
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-5">
-                        {% if trip.polyline%}
-                        <img style="max-width: 100%; height: auto;" src="https://maps.googleapis.com/maps/api/staticmap?style=feature:poi|visibility:off&style=feature:transit|visibility:off&path=weight:4|enc:{{trip.polyline}}&size=120x160&scale=2&maptype=roadmap&key=AIzaSyDhskcdBb5bski_oNDm05P6A4eGiOcbaSQ" alt="mini-map">
-                        {% endif %}
-                    </div>
+                    </a>
                 </div>
-              </div>
             </div>
             {% endfor %}
         </div>

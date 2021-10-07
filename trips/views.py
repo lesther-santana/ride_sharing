@@ -20,9 +20,14 @@ def index(request):
 
 
 @login_required
-def trips(request):
-    pass
+def my_trips(request):
+    trips = Trip.objects.filter(user=request.user)
+    return render(request, 'trips/my_trips.html', {'trips': trips})
 
+
+def trip_view(request, id):
+    trip = Trip.objects.get(pk=id)
+    return render(request, 'trips/trip.html', {'trip': trip})
 
 @login_required
 def profie(request):

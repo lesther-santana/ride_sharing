@@ -1,0 +1,19 @@
+#trip-card:hover {
+    background-color:lightslategray;
+    color: white;
+}
+
+#trip-card:hover small {
+    color: white !important;
+}
+
+#trip-card a {
+    text-decoration: inherit;
+    color: inherit;
+
+}
+
+.plain-link {
+    text-decoration: inherit;
+    color: inherit;
+}

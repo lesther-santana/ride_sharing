@@ -1,0 +1,45 @@
+{% extends 'trips/layout.html'%}
+{% load static %}
+
+{% block script%}
+<link rel="stylesheet" href="{% static 'trips/css/trips.css'%}">
+{% endblock %}
+
+{% block body %}
+<div id="trips">
+    <h1  class="display-6 fw-bold mb-3">Mis viajes</h1>
+    {% for trip in trips%}
+    <div class="card shadow-sm mb-3" style="max-height: 182px;">
+        <div class="row g-0">
+            <div class="col-md-3">
+                <img class="img-fluid" alt="..." style="width: 100%; max-height: 100%;" src="https://maps.googleapis.com/maps/api/staticmap?style=feature:poi|visibility:off&style=feature:transit|visibility:off&path=weight:3|enc:{{trip.polyline}}&size=310x160&scale=2&maptype=roadmap&key=AIzaSyDhskcdBb5bski_oNDm05P6A4eGiOcbaSQ">
+            </div>
+            <div id="trip-card" class="col-md-9">
+                <a href="{% url 'trip' trip.id %}" class="text-decoration-none">    
+                    <div class="card-body">
+                        <div class="row row-cols-md-2">
+                            <div class="col">
+                                <div class="p-3">
+                                    <h5 class="card-title mb-1">{{trip.origen.name}}</h5>
+                                    <p class="card-text">{{trip.origen.formatted_address}}</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="p-3">
+                                    <h5 class="card-title mb-1">{{trip.destino.name}}</h5>
+                                    <p class="card-text">{{trip.destino.formatted_address}}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="card-text px-3"><small class="text-muted">Creado {{trip.date_created}}</small></p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <script>
+        
+    </script>
+</div>
+{% endblock %}
