@@ -3,7 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
-from django.http.response import HttpResponse
+from django.db.models.expressions import OrderBy
+from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse
 
@@ -18,6 +19,35 @@ def index(request):
     trips = Trip.objects.all()[:4]
     return render(request, 'trips/index.html', {'trips': trips})
 
+
+def find(request):
+    mode = request.GET.get('mode')
+    if  mode == 'filter':
+        origen = request.GET.get('origen')
+        destino = request.GET.get('destino')
+        if origen and destino:
+            trips = [trip.serialize() for trip in Trip.objects.filter(origen__adm_area_lv2=origen, destino__adm_area_lv2=destino)]
+        elif origen: 
+            trips = [trip.serialize() for trip in Trip.objects.filter(origen__adm_area_lv2=origen)]
+        elif destino:
+            trips = [trip.serialize() for trip in Trip.objects.filter(destino__adm_area_lv2=destino)]
+        if trips:
+            return JsonResponse({'message': 'Trips found', 'trips': trips})
+        else:
+            return JsonResponse({'message': 'No trips found', 'trips': []}, status=204)
+    elif mode == 'all':
+        trips = [trip.serialize() for trip in Trip.objects.all()]
+        origenes = list(set([origen for origen in Trip.objects.order_by('origen__adm_area_lv2').values_list('origen__adm_area_lv2', flat=True)]))
+        destinos = list(set([destino for destino in Trip.objects.values_list('destino__adm_area_lv2', flat=True)]))
+        origenes.sort()
+        destinos.sort()
+        return JsonResponse({
+            'message': 'Trips found', 
+            'trips': trips, 
+            'origenes': origenes, 
+            'destinos': destinos
+            })
+    return render(request, 'trips/find.html')
 
 @login_required
 def my_trips(request):

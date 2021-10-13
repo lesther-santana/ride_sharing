@@ -18,6 +18,21 @@ class Trip(models.Model):
 
     def __str__(self) -> str:
         return f'viaje: {self.origen} - {self.destino}'
+    
+    def serialize(self):
+        return {
+            'id': self.id,
+            'origen': {
+                'name': self.origen.name,
+                'formatted_address': self.origen.formatted_address
+                },
+            'destino': {
+                'name': self.destino.name,
+                'formatted_address': self.destino.formatted_address
+                },
+            'date_created': self.date_created,
+            'polyline': self.polyline
+        }
 
     class Meta:
         ordering =['-date_created']

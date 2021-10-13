@@ -1,0 +1,22 @@
+{% extends 'trips/layout.html' %}
+{% load static %}
+
+{% block title %}Buscar viajes{% endblock %}
+
+{% block script%}
+<link rel="stylesheet" href="{% static 'trips/css/trips.css'%}">
+{% endblock %}
+
+{% block body %}
+<div id="app">
+    <div class="row">
+        <div class="col col-md-3">
+            <select-component @update="updateTrips"></select-component>
+        </div>
+        <div class="col col-md-9">
+            <trip-component v-if="trips" v-for="trip in trips" :key="trip.id" :trip="trip"></trip-component>
+        </div>
+    </div>
+</div>
+<script src="{% static 'trips/js/find.js'%}"></script>
+{% endblock %}
