@@ -14,7 +14,8 @@
             <select-component @update="updateTrips"></select-component>
         </div>
         <div class="col col-md-9">
-            <trip-component v-if="trips" v-for="trip in trips" :key="trip.id" :trip="trip"></trip-component>
+            <p v-if="notFound">Sorry.....No trips found.</p>
+            <trip-component v-for="trip in trips" :key="trip.id" :trip="trip"></trip-component>
         </div>
     </div>
 </div>

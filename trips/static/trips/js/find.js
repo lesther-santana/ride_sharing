@@ -30,7 +30,10 @@ Vue.component('select-component', {
             fetch(url)
             .then((response) => response.json())
             .then((data) => {
-                this.$emit("update", data.trips) 
+                let trips = data.trips
+                if (trips) {
+                    this.$emit("update", data.trips) 
+                }
             })
             .catch((e) => {
                 console.log(e)
@@ -67,7 +70,8 @@ Vue.component('trip-component', {
             origen: this.trip.origen,
             destino: this.trip.destino,
             dateCreated: this.trip.date_created,
-            mapUrl: "https://maps.googleapis.com/maps/api/staticmap?style=feature:poi|visibility:off&style=feature:transit|visibility:off&path=weight:3|enc:"+this.trip.polyline+"&size=300x200&scale=2&maptype=roadmap&key=AIzaSyDhskcdBb5bski_oNDm05P6A4eGiOcbaSQ"
+            mapUrl: "https://maps.googleapis.com/maps/api/staticmap?style=feature:poi|visibility:off&style=feature:transit|visibility:off&path=weight:3|enc:"+this.trip.polyline+"&size=300x200&scale=2&maptype=roadmap&key=AIzaSyDhskcdBb5bski_oNDm05P6A4eGiOcbaSQ",
+            tripUrl: "/trip/" + this.trip.id
         }
     },
     template: `
@@ -77,7 +81,7 @@ Vue.component('trip-component', {
                     <img style="max-width: 100%; height: 180px;" alt="..." :src="mapUrl">
                 </div>
                 <div id="trip-card" class="col-md-9">
-                    <a href="#" class="text-decoration-none">    
+                    <a :href="tripUrl" class="text-decoration-none">    
                         <div class="card-body">
                             <div class="row row-cols-md-2">
                                 <div class="col">
@@ -108,10 +112,17 @@ var app = new Vue({
         origenes: null,
         destinos: null,
         trips: null,
+        notFound: null
     },
     methods: {
         updateTrips: function(trips) {
-            this.trips = trips
+            if (trips.length > 0) {
+                this.trips = trips
+                this.notFound = false
+            } else {
+                this.trips = null
+                this.notFound = true
+            }
         }
     },
     mounted: function() {

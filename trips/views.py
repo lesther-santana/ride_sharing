@@ -34,7 +34,7 @@ def find(request):
         if trips:
             return JsonResponse({'message': 'Trips found', 'trips': trips})
         else:
-            return JsonResponse({'message': 'No trips found', 'trips': []}, status=204)
+            return JsonResponse({'message': 'No trips found', 'trips': []})
     elif mode == 'all':
         trips = [trip.serialize() for trip in Trip.objects.all()]
         origenes = list(set([origen for origen in Trip.objects.order_by('origen__adm_area_lv2').values_list('origen__adm_area_lv2', flat=True)]))
