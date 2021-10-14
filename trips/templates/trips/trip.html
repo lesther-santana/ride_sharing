@@ -31,7 +31,7 @@
                     </li>
 
                 </ul>
-                <div id="botones">
+                <div id="botones" class="d-flex">
                     {% if trip.user != request.user%}
                         <button type="button" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-right-text" viewBox="0 0 16 16">
@@ -42,8 +42,7 @@
                             <span class="fw-bold">{{trip.user}}</span>
                         </button>
                     {% else %}
-                        <button type="button" class="btn btn-secondary">Editar</button>
-                        <button type="button" class="btn btn-secondary">Eliminar</button>
+                        <button @click="deleteTrip({{trip.id}})" type="button" class="btn btn-secondary">Eliminar</button>
                     {% endif %}
                 </div>
             </div>
@@ -61,5 +60,5 @@
         </div>
     </div>
 </div>
-<script src="{% static 'trips/js/publish.js'%}"></script>
+<script src="{% static 'trips/js/trip.js'%}"></script>
 {% endblock %}

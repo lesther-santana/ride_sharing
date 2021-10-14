@@ -2,8 +2,6 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.expressions import OrderBy
 from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse
@@ -31,14 +29,16 @@ def find(request):
             trips = [trip.serialize() for trip in Trip.objects.filter(origen__adm_area_lv2=origen)]
         elif destino:
             trips = [trip.serialize() for trip in Trip.objects.filter(destino__adm_area_lv2=destino)]
+        else:
+            trips = [trip.serialize() for trip in Trip.objects.all()]
         if trips:
             return JsonResponse({'message': 'Trips found', 'trips': trips})
         else:
             return JsonResponse({'message': 'No trips found', 'trips': []})
     elif mode == 'all':
         trips = [trip.serialize() for trip in Trip.objects.all()]
-        origenes = list(set([origen for origen in Trip.objects.order_by('origen__adm_area_lv2').values_list('origen__adm_area_lv2', flat=True)]))
-        destinos = list(set([destino for destino in Trip.objects.values_list('destino__adm_area_lv2', flat=True)]))
+        origenes = list(set([origen for origen in Trip.objects.order_by('origen__adm_area_lv2').values_list('origen__adm_area_lv2', flat=True) if origen is not None]))
+        destinos = list(set([destino for destino in Trip.objects.values_list('destino__adm_area_lv2', flat=True) if destino is not None]))
         origenes.sort()
         destinos.sort()
         return JsonResponse({
@@ -56,6 +56,15 @@ def my_trips(request):
 
 
 def trip_view(request, id):
+    if request.method == "DELETE":
+        try:    
+            data = json.loads(request.body)
+            trip = Trip.objects.get(pk=data.get('id'))
+            trip.delete()
+            messages.success(request, 'Viaje eliminado con exito!')
+        except:
+            messages.error(request, 'Viaje no pudo ser eliminado!')
+        return HttpResponse(status=200)
     trip = Trip.objects.get(pk=id)
     return render(request, 'trips/trip.html', {'trip': trip})
 

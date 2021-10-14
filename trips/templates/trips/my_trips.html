@@ -8,6 +8,19 @@
 {% block body %}
 <div id="trips">
     <h1  class="display-6 fw-bold mb-3">Mis viajes</h1>
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+            <div class="alert alert-danger text-center" role="alert">
+                {{message}}
+            </div>
+            {% else %}
+            <div class="alert alert-{{message.tags}} text-center" role="alert">
+                {{message}}
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
     {% for trip in trips%}
     <div class="card shadow-sm mb-3" style="max-height: 182px;">
         <div class="row g-0">
@@ -37,6 +50,8 @@
             </div>
         </div>
     </div>
+    {% empty %}
+    <p class="lead">No tienes viajes publicados :(</p>
     {% endfor %}
     <script>
         

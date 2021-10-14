@@ -43,8 +43,8 @@ class Ubicacion(models.Model):
     name = models.TextField()
     formatted_address = models.TextField()
     locality = models.CharField(max_length=80, null=True)
-    adm_area_lv2 = models.CharField(max_length=80)
-    adm_area_lv1 = models.CharField(max_length=80)
+    adm_area_lv2 = models.CharField(max_length=80, null=True)
+    adm_area_lv1 = models.CharField(max_length=80, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     
