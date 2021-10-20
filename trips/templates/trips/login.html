@@ -3,11 +3,8 @@
 {% block title %}Iniciar Sesion{% endblock %}
 
 {% block body %}
-<form action="{% url 'login' %}" method="POST">
-    {%csrf_token%}
-    <h3 class="mb-4 mt-4">Iniciar Sesion</h1>
-    {% if messages %}
-        {% for message in messages %}
+  
+    {% for message in messages %}
         {% if message.tags == 'error' %}
         <div class="alert alert-danger" role="alert">
             {{message}}
@@ -17,16 +14,21 @@
             {{message}}
         </div>
         {% endif %}
-        {% endfor %}
-    {% endif %}
-    <div class="form-floating mb-1">
-        <input type="text" class="form-control" id="usuario" name="username" placeholder="Usuario" autocomplete="off" autofocus>
-        <label for="usuario">Usuario</label>
-    </div>
-    <div class="form-floating mb-1">
-        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
-        <label for="password">Contrasena</label>
-    </div>
-    <button class="w-100 btn btn-lg btn-primary mt-3" type="submit">Sign in</button>
-</form>
+    {% endfor %}
+    <form action="{% url 'login' %}" method="POST">
+        {%csrf_token%}
+        {% if request.GET.next%}
+            <input type="hidden" id="next-url" name="next" value="{{request.GET.next}}">
+        {% endif %}
+        <h3 class="mb-4 mt-4">Iniciar Sesion</h1>
+        <div class="form-floating mb-1">
+            <input type="text" class="form-control" id="usuario" name="username" placeholder="Usuario" autocomplete="off" autofocus>
+            <label for="usuario">Usuario</label>
+        </div>
+        <div class="form-floating mb-1">
+            <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+            <label for="password">Contrasena</label>
+        </div>
+        <button class="w-100 btn btn-lg btn-primary mt-3" type="submit">Sign in</button>
+    </form>
 {% endblock %}

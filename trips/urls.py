@@ -10,5 +10,6 @@ urlpatterns = [
     path('find', views.find, name="find"),
     path('publish', views.publish_trip, name="publish"),
     path('my-trips', views.my_trips, name="my-trips"),
-    path('trip/<int:id>', views.trip_view, name="trip")
+    path('trip/<int:id>', views.trip_view, name="trip"),
+    path('mensajes', views.mensajes, name='mensajes')
 ]

@@ -1,5 +1,7 @@
 from django.db import models
+from django.db.models import Q, F
 from django.contrib.auth.models import AbstractUser
+
 
 # Create your models here.
 class User(AbstractUser):
@@ -51,3 +53,30 @@ class Ubicacion(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class Convo(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f'{self.trip}, started by {self.user} to {self.trip.user}'
+
+    class Meta:
+        ordering =['-date_created']
+
+
+class Mensaje(models.Model):
+    convo = models.ForeignKey(Convo, on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField()
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering =['date_created']
+        
+
+    def __str__(self) -> str:
+        return f'{self.pk} by {self.sender} on {self.date_created}'
+

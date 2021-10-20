@@ -24,3 +24,20 @@ var app = new Vue({
         }
     }
 })
+
+function showMessages() {
+    mensaje = document.getElementById('form-mensaje');
+    mensaje.style.display = 'initial';
+}
+
+function habilitarBoton() {
+    const texto = document.getElementById('mensaje').value;
+    const boton = document.getElementById('boton-enviar');
+    if (!(texto.trim() === ""))  {
+        boton.disabled = false;
+    } else {
+        boton.disabled ? null : boton.disabled = true
+    }
+    
+    
+}

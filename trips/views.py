@@ -2,16 +2,17 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.db.models import Q
 from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse
 
-from .models import User, Trip, Ubicacion
+from .models import User, Trip, Ubicacion, Convo
 from . import utils
 import json
 
 # Create your views here.
-# Create your views here.
+
 
 def index(request):
     trips = Trip.objects.all()[:4]
@@ -65,8 +66,21 @@ def trip_view(request, id):
         except:
             messages.error(request, 'Viaje no pudo ser eliminado!')
         return HttpResponse(status=200)
+    if request.method == "POST":
+        try:
+            mensaje = request.POST.get('mensaje')
+        except:
+            messages.error(request, 'Mensaje no pudo ser enviado!')
+        return HttpResponseRedirect(reverse('trip' ,args=[id]))
+
     trip = Trip.objects.get(pk=id)
     return render(request, 'trips/trip.html', {'trip': trip})
+
+
+def mensajes(request):
+    conv = Convo.objects.filter(Q(trip__user = request.user) | Q(user=request.user))
+    print(conv)
+    return render(request, 'trips/mensajes.html')
 
 @login_required
 def profie(request):
@@ -122,13 +136,19 @@ def log_out(request):
     return HttpResponseRedirect(reverse("index"))
 
 def log_in(request):
+    
     if request.method == "POST":
+        view = request.POST.get('next')
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return HttpResponseRedirect(reverse("index"))
+            print(view)
+            if view:
+                return HttpResponseRedirect(view)
+            else:
+                return HttpResponseRedirect(reverse('index'))
         else:
             messages.error(request, 'Incorrect username or password!')
     return render(request, 'trips/login.html')
