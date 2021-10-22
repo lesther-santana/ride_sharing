@@ -77,10 +77,36 @@ def trip_view(request, id):
     return render(request, 'trips/trip.html', {'trip': trip})
 
 
+@login_required
 def mensajes(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            conv_id = data.get("convo")
+            text = data.get("text")
+            conv = Convo.objects.get(pk=conv_id)
+            m = conv.mensaje_set.create(
+                sender=request.user,
+                text=text
+            )
+            return JsonResponse({
+                'mensajes': [m.serialize()],
+                'usuario': request.user.username
+            },
+            status=201)
+        except Exception as e:
+            print(e)
+            return HttpResponse(status=400)
     conv = Convo.objects.filter(Q(trip__user = request.user) | Q(user=request.user))
-    print(conv)
-    return render(request, 'trips/mensajes.html')
+    return render(request, 'trips/mensajes.html', {'conversaciones': conv})
+
+@login_required
+def convo(request, id):
+    mensajes = [chat.serialize() for chat in Convo.objects.get(pk=id).mensaje_set.all()]
+    return JsonResponse({
+        'mensajes': mensajes,
+        'usuario': request.user.username
+    })
 
 @login_required
 def profie(request):

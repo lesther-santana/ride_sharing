@@ -1,8 +1,12 @@
 {% extends "trips/layout.html"%}
-
+{% load static%}
 
 {% block title%}
 Mensajes
+{% endblock %}
+
+{% block script%}
+<script src="{% static 'trips\js\mensajes.js' %}"></script>
 {% endblock %}
 
 
@@ -10,24 +14,37 @@ Mensajes
 <div>
     <h1  class="display-6 fw-bold mb-5">Mensajes</h1>
     <div class="row">
-        {% if messages %}
+        {% if conversaciones %}
         <div class="col col-md-5">
             <ul class="list-group">
-                {% for message in messages %}
-                <li class="list-group-item list-group-item-action d-flex gap-3 py-3">
+                {% for conv in conversaciones %}
+                <li data-id="{{conv.id}}" class="convo list-group-item list-group-item-action d-flex gap-3 py-3">
                     <img src="https://github.com/twbs.png" alt="twbs" width="32" height="32" class="rounded-circle flex-shrink-0">
                     <div class="d-flex gap-2 w-100 justify-content-between">
                         <div>
-                            <h6 class="mb-0">{{message.sender}}</h6>
-                            <p class="mb-0 opacity-75">{{message.trip.origen.name}} &#8594; {{message.trip.destino.name}}.</p>
+                            {% if conv.user == request.user%}
+                                <h6 class="mb-0">{{conv.trip.user}}</h6>
+                            {% else %}
+                                <h6 class="mb-0">{{conv.user}}</h6>
+                            {% endif %}
+                                
+                            <p class="mb-0 opacity-75">{{conv.trip.origen.name}} &#8594; {{conv.trip.destino.name}}.</p>
                         </div>
-                        <small class="opacity-50 text-nowrap">now</small>
+                        <small class="opacity-50 text-nowrap">{{conv.date_created}}</small>
                     </div>
                 </li>
                 {% endfor %}
             </ul>
         </div>
         <div class="col col-md-7">
+            <div id="tablero" class="bg-light border rounded shadow-sm py-5 px-3" style="display: none;">
+                <div id="mensajes" class="d-flex flex-column">
+                </div> 
+                <div class="input-group mt-5">
+                    <input id="input-mensaje" type="text" class="form-control" placeholder="Escribe tu mensaje aqui" name="input-mensaje">
+                    <button class="btn btn-outline-secondary" type="button" id="btn-enviar-mensaje">Enviar</button>
+                </div>
+            </div>
         </div>
         {% else %}
         <p>Aun no tienes mensajes :(</p>

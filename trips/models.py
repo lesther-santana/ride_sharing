@@ -80,3 +80,10 @@ class Mensaje(models.Model):
     def __str__(self) -> str:
         return f'{self.pk} by {self.sender} on {self.date_created}'
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'sender': self.sender.username,
+            'text': self.text,
+            'date_created': self.date_created
+        }

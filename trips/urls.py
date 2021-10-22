@@ -11,5 +11,6 @@ urlpatterns = [
     path('publish', views.publish_trip, name="publish"),
     path('my-trips', views.my_trips, name="my-trips"),
     path('trip/<int:id>', views.trip_view, name="trip"),
-    path('mensajes', views.mensajes, name='mensajes')
+    path('mensajes', views.mensajes, name='mensajes'),
+    path('convo/<int:id>', views.convo, name='conversacion')
 ]
