@@ -41,14 +41,11 @@
             </div>
             <div id="form-mensaje" style="display: none;">
                 <div class="p-5 border rounded-3 bg-light shadow-sm">
-                    <form  action="{% url 'trip' trip.id %}" method="post">
-                        {%csrf_token%}
-                        <div class="mb-3">
-                            <label for="mensaje" class="form-label fw-bold">Mensaje</label>
-                            <textarea onkeyup="habilitarBoton()" name="mensaje" class="form-control" id="mensaje" rows="3"></textarea>
-                        </div>
-                        <button id='boton-enviar' type="submit" class="d-flex ms-auto btn btn-secondary" disabled>Enviar</button>
-                    </form>
+                    <div class="mb-3">
+                        <label for="mensaje" class="form-label fw-bold">Mensaje</label>
+                        <textarea data-id="{{trip.id}}" onkeyup="habilitarBoton()" name="mensaje" class="form-control" id="mensaje" rows="3"></textarea>
+                    </div>
+                    <button id='boton-enviar' type="button" onclick="enviarMensaje()" class="d-flex ms-auto btn btn-secondary" disabled>Enviar</button>
                 </div>
             </div>
         </div>

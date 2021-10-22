@@ -68,10 +68,22 @@ def trip_view(request, id):
         return HttpResponse(status=200)
     if request.method == "POST":
         try:
-            mensaje = request.POST.get('mensaje')
+            data = json.loads(request.body)
+            text = data.get("texto")
+            trip = Trip.objects.get(pk=id)
+            conv, _ = Convo.objects.get_or_create(
+                trip=trip,
+                user=request.user
+            )
+            conv.mensaje_set.create(
+                sender=request.user,
+                text=text
+            )
+            messages.success(request, 'Mensaje enviado con exito!')
+            return HttpResponse(status=201)
         except:
             messages.error(request, 'Mensaje no pudo ser enviado!')
-        return HttpResponseRedirect(reverse('trip' ,args=[id]))
+            return HttpResponseRedirect(reverse('trip' ,args=[id]))
 
     trip = Trip.objects.get(pk=id)
     return render(request, 'trips/trip.html', {'trip': trip})

@@ -65,6 +65,7 @@ class Convo(models.Model):
 
     class Meta:
         ordering =['-date_created']
+        unique_together=[["trip","user"]]
 
 
 class Mensaje(models.Model):
